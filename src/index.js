@@ -40,7 +40,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/auth", authRoutes);
-app.use("/predict", authMiddleware, predictHoaxRoutes);
+app.use("/predict", predictHoaxRoutes);
 app.use("/news", authMiddleware, newsRoutes);
 
 app.listen(PORT, () => {

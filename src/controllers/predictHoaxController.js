@@ -1,7 +1,10 @@
 import multer from "multer";
 import { PrismaClient } from "@prisma/client";
+import apiAdapter from "../utils/apiAdapter.js";
+// const apiAdapter = require("../utils/.js");
 
 const prisma = new PrismaClient();
+const URL_SERVICE_PREDICT = "https://flask-predict-production.up.railway.app";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -63,6 +66,33 @@ const predictHoaxController = {
         });
       }
     });
+  },
+  predictService: async (req, res) => {
+    const api = apiAdapter(URL_SERVICE_PREDICT);
+
+    try {
+      const response = await api.post("/predict", req.body);
+      const data = response.data;
+
+      // Mengembalikan response dari service prediksi
+      return res.json({
+        status: "success",
+        data: data,
+      });
+    } catch (error) {
+      if (error.code === "ECONNREFUSED") {
+        return res.status(500).json({
+          status: "error",
+          message: "service unavailable",
+        });
+      }
+      const { status, data } = error.response;
+      return res.status(status).json({
+        status: "error",
+        message: data.message || "An error occurred",
+        data: data,
+      });
+    }
   },
 
   histories: async (req, res) => {
