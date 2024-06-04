@@ -6,6 +6,6 @@ const router = express.Router();
 
 // router.post("/", predictHoaxController.predict);
 router.post("/", predictHoaxController.predictService);
-router.get("/", authMiddleware, predictHoaxController.histories);
+router.get("/", predictHoaxController.histories);
 
 export default router;

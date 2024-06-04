@@ -1,6 +1,7 @@
 import multer from "multer";
 import { PrismaClient } from "@prisma/client";
 import apiAdapter from "../utils/apiAdapter.js";
+import { getDataByUserId, storeData } from "../services/storeData.js";
 // const apiAdapter = require("../utils/.js");
 
 const prisma = new PrismaClient();
@@ -17,7 +18,6 @@ const storage = multer.diskStorage({
     cb(null, newFileName);
   },
 });
-
 const upload = multer({ storage: storage }).single("image");
 
 const predictHoaxController = {
@@ -69,52 +69,95 @@ const predictHoaxController = {
   },
   predictService: async (req, res) => {
     const api = apiAdapter(URL_SERVICE_PREDICT);
+    const Auth = req.userData;
 
     try {
-      const response = await api.post("/predict", req.body);
-      const data = response.data;
-
-      // Mengembalikan response dari service prediksi
+      const response = await api.post(`${URL_SERVICE_PREDICT}/predict`, {
+        text: req.body.text,
+      });
+      // return res.json({
+      //   hasil: response.prediction,
+      // });
+      console.log(response);
+      const data = {
+        userId: Auth.id,
+        text: req.body.text,
+        result: response.data.prediction,
+      };
+      storeData("sdsadsada", data);
       return res.json({
-        status: "success",
-        data: data,
+        message: "berhasil",
+        data,
       });
     } catch (error) {
-      if (error.code === "ECONNREFUSED") {
-        return res.status(500).json({
-          status: "error",
-          message: "service unavailable",
-        });
-      }
-      const { status, data } = error.response;
-      return res.status(status).json({
-        status: "error",
-        message: data.message || "An error occurred",
-        data: data,
+      return res.status(500).json({
+        message: "error",
       });
     }
+    // try {
+    //   const response = await api.post("/predict", req.body);
+    //   const data = response.data;
+
+    //   // Mengembalikan response dari service prediksi
+
+    //   return res.json({
+    //     status: "success",
+    //     data: data,
+    //   });
+    // } catch (error) {
+    //   if (error.code === "ECONNREFUSED") {
+    //     return res.status(500).json({
+    //       status: "error",
+    //       message: "service unavailable",
+    //     });
+    //   }
+    //   const { status, data } = error.response;
+    //   return res.status(status).json({
+    //     status: "error",
+    //     message: data.message || "An error occurred",
+    //     data: data,
+    //   });
+    // }
   },
 
   histories: async (req, res) => {
     const Auth = req.userData;
-
     try {
-      const predicts = await prisma.predicts.findMany({
-        where: {
-          userId: Auth.id,
-        },
-      });
-      return res.json({
-        message: "success",
-        data: predicts,
-      });
+      const data = await getDataByUserId(Auth.id);
+      if (data) {
+        return res.json({
+          message: "berhasil",
+          data: data,
+        });
+      } else {
+        return res.status(404).json({
+          message: "Tidak ada data yang ditemukan",
+        });
+      }
     } catch (error) {
+      console.error("Error getting data:", error);
       return res.status(500).json({
-        status: "error",
-        message: "Failed to create prediction",
-        error: error.message,
+        message: "error",
       });
     }
+
+    // try {
+    //   const predicts = await prisma.predicts.findMany({
+    //     where: {
+    //       userId: Auth.id,
+    //     },
+    //   });
+    //   return res.json({
+    //     message: "success",
+    //     data: predicts,
+    //   });
+    // } catch (error) {
+    //   return res.status(500).json({
+    //     status: "error",
+    //     message: "Failed to create prediction",
+    //     error: error.message,
+    //   });
+    // }
   },
 };
 

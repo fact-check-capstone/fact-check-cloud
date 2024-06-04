@@ -14,6 +14,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-cloud/firestore": "^7.8.0",
     "@prisma/client": "^5.14.0",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
