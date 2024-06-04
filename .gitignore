@@ -1,7 +1,7 @@
 node_modules
 # Keep environment variables out of version control
 .env
-credentials-jagafakta-stuff.json
+services/credentials-jagafakta-stuff.json
 # credentials*.json
 uploads
 
