@@ -41,7 +41,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/auth", authRoutes);
 app.use("/predict", authMiddleware, predictHoaxRoutes);
-app.use("/news", newsRoutes);
+app.use("/news", authMiddleware, newsRoutes);
 
 app.listen(PORT, () => {
   console.log(`server running on port ${PORT}`);
