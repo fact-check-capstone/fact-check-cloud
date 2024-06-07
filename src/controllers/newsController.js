@@ -1,21 +1,27 @@
-import { PrismaClient } from "@prisma/client";
-import news from "../dumy/news.json" assert { type: "json" };
-
-const prisma = new PrismaClient();
+import { writeFile } from "fs/promises";
+import getNews from "../services/newsScraper.js";
+import news from "../dummy/news.json" assert { type: "json" };
 
 const newsController = {
   news: async (req, res) => {
-    const Auth = req.userData;
+    // const Auth = req.userData;
 
+    let newsList = news;
     try {
+      if (req.query.refresh == 'ok') {
+        newsList = await getNews()
+
+        await writeFile("src/dummy/news.json", JSON.stringify(newsList), "utf8");
+      }
+
       return res.json({
         message: "success",
-        data: news,
+        data: newsList,
       });
     } catch (error) {
       return res.status(500).json({
         status: "error",
-        message: "Failed to create prediction",
+        message: "No news found",
         error: error.message,
       });
     }
