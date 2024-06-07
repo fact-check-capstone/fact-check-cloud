@@ -28,7 +28,11 @@ const authorizationUrl = oauth2Client.generateAuthUrl({
 const authController = {
   register: async (req, res) => {
     const { name, email, password } = req.body;
-
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Name, email, and password are required" });
+    }
     const emailCheck = await prisma.users.findUnique({
       where: { email: email },
     });
@@ -38,7 +42,7 @@ const authController = {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password.toString(), 10);
 
     try {
       // Create user in database
@@ -202,6 +206,121 @@ const authController = {
         data: Auth,
       });
     } catch (error) {
+      return res.status(500).json({
+        status: "error",
+        error: error.message,
+      });
+    }
+  },
+  updateProfile: async (req, res) => {
+    const Auth = req.userData;
+    const { id } = Auth; // Assuming the user ID is stored in the authenticated user's data
+    const { name, email, address } = req.body; // Ensure 'address' is also included if required
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    try {
+      const emailCheck = await prisma.users.findUnique({
+        where: { email: email },
+      });
+
+      // Check if the email belongs to another user
+      if (emailCheck && emailCheck.id !== id) {
+        return res
+          .status(400)
+          .json({ message: "Email already in use by another user" });
+      }
+
+      const result = await prisma.users.update({
+        data: {
+          name: name,
+          email: email,
+          address: address,
+        },
+        where: {
+          id: Number(id),
+        },
+      });
+      const data = {
+        id: result.id,
+        name: result.name,
+        email: result.email,
+        address: result.address,
+      };
+      return res.json({
+        message: "Profile updated successfully",
+        data,
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      return res.status(500).json({
+        status: "error",
+        error: error.message,
+      });
+    }
+  },
+  updatePassword: async (req, res) => {
+    const Auth = req.userData;
+    const { id } = Auth; // Assuming the user ID is stored in the authenticated user's data
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Current password and new password are required" });
+    }
+
+    try {
+      // Fetch the user from the database
+      const user = await prisma.users.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Verify the current password
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        user.password
+      );
+      if (!isPasswordValid) {
+        return res
+          .status(401)
+          .json({ message: "Current password is incorrect" });
+      }
+
+      // Hash the new password
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      // Update the user's password in the database
+      const result = await prisma.users.update({
+        data: {
+          password: hashedPassword,
+        },
+        where: {
+          id: Number(id),
+        },
+      });
+
+      return res.json({
+        message: "Password updated successfully",
+        data: {
+          id: result.id,
+          name: result.name,
+          email: result.email,
+          address: result.address,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating password:", error);
       return res.status(500).json({
         status: "error",
         error: error.message,

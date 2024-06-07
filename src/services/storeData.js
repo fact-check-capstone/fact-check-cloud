@@ -10,8 +10,9 @@ const __dirname = dirname(__filename);
 // Ganti 'path/to/your/service-account-file.json' dengan path ke file JSON kredensial Anda
 const serviceAccountPath = path.join(
   __dirname,
-  "credentials-jagafakta-stuff.json"
+  "../../credentials-jagafakta-stuff.json"
 );
+// import credentials from "../../credentials-jagafakta-stuff.json";
 
 const storeData = async (id, data) => {
   // Inisialisasi Firestore dengan kredensial

@@ -12,5 +12,7 @@ router.get("/google", authController.loginWithGoogle);
 // GOOGLE callback login
 router.get("/google/callback", authController.googleCallback);
 router.get("/me", authMiddleware, authController.me);
+router.put("/update/profile", authMiddleware, authController.updateProfile);
+router.put("/update/password", authMiddleware, authController.updatePassword);
 
 export default router;
