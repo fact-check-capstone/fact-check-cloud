@@ -5,7 +5,7 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // router.post("/", predictHoaxController.predict);
-router.post("/", predictHoaxController.predictService);
-router.get("/", predictHoaxController.histories);
+router.post("/:id", predictHoaxController.predictService);
+router.get("/:id", predictHoaxController.histories);
 
 export default router;

@@ -69,8 +69,12 @@ const predictHoaxController = {
   },
   predictService: async (req, res) => {
     const api = apiAdapter(URL_SERVICE_PREDICT);
-    const Auth = req.userData;
+    const id = req.params.id;
+    const Auth = {
+      id,
+    };
 
+    // const Auth = req.userData;
     try {
       const response = await api.post(`${URL_SERVICE_PREDICT}/predict`, {
         text: req.body.text,
@@ -121,7 +125,13 @@ const predictHoaxController = {
   },
 
   histories: async (req, res) => {
-    const Auth = req.userData;
+    // const Auth = req.userData;
+    const id = req.params.id;
+
+    const Auth = {
+      id,
+    };
+
     try {
       const data = await getDataByUserId(Auth.id);
       if (data) {
