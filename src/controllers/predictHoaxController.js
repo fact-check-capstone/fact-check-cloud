@@ -2,6 +2,7 @@ import multer from "multer";
 import { PrismaClient } from "@prisma/client";
 import apiAdapter from "../utils/apiAdapter.js";
 import { getDataByUserId, storeData } from "../services/storeData.js";
+import crypto from "crypto";
 // const apiAdapter = require("../utils/.js");
 
 const prisma = new PrismaClient();
@@ -88,7 +89,8 @@ const predictHoaxController = {
         text: req.body.text,
         result: response.data.prediction,
       };
-      storeData("sdsadsada", data);
+      const uniqId = crypto.randomUUID();
+      storeData(uniqId, data);
       return res.json({
         message: "berhasil",
         data,
