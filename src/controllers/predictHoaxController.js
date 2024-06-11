@@ -75,14 +75,10 @@ const predictHoaxController = {
       id,
     };
 
-    // const Auth = req.userData;
     try {
       const response = await api.post(`${URL_SERVICE_PREDICT}/predict`, {
         text: req.body.text,
       });
-      // return res.json({
-      //   hasil: response.prediction,
-      // });
       console.log(response);
       const data = {
         userId: Auth.id,
@@ -100,34 +96,9 @@ const predictHoaxController = {
         message: "error",
       });
     }
-    // try {
-    //   const response = await api.post("/predict", req.body);
-    //   const data = response.data;
-
-    //   // Mengembalikan response dari service prediksi
-
-    //   return res.json({
-    //     status: "success",
-    //     data: data,
-    //   });
-    // } catch (error) {
-    //   if (error.code === "ECONNREFUSED") {
-    //     return res.status(500).json({
-    //       status: "error",
-    //       message: "service unavailable",
-    //     });
-    //   }
-    //   const { status, data } = error.response;
-    //   return res.status(status).json({
-    //     status: "error",
-    //     message: data.message || "An error occurred",
-    //     data: data,
-    //   });
-    // }
   },
 
   histories: async (req, res) => {
-    // const Auth = req.userData;
     const id = req.params.id;
 
     const Auth = {
@@ -149,7 +120,7 @@ const predictHoaxController = {
     } catch (error) {
       console.error("Error getting data:", error);
       return res.status(500).json({
-        message: "error",
+        message: "gagal",
       });
     }
 

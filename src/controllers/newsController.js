@@ -8,20 +8,24 @@ const newsController = {
 
     let newsList = news;
     try {
-      if (req.query.refresh == 'ok') {
-        newsList = await getNews()
+      if (req.query.refresh == "ok") {
+        newsList = await getNews();
 
-        await writeFile("src/dummy/news.json", JSON.stringify(newsList), "utf8");
+        await writeFile(
+          "src/dummy/news.json",
+          JSON.stringify(newsList),
+          "utf8"
+        );
       }
 
       return res.json({
-        message: "success",
+        message: "berhasil",
         data: newsList,
       });
     } catch (error) {
       return res.status(500).json({
-        status: "error",
-        message: "No news found",
+        status: "gagal",
+        message: "Berita tidak ditemukan",
         error: error.message,
       });
     }
