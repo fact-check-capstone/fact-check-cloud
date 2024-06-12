@@ -1,12 +1,17 @@
 import multer from "multer";
 import { PrismaClient } from "@prisma/client";
 import apiAdapter from "../utils/apiAdapter.js";
-import { getDataByUserId, storeData } from "../services/storeData.js";
+import {
+  getDataByUserId,
+  storeData,
+  deleteData,
+} from "../services/storeData.js";
 import crypto from "crypto";
 // const apiAdapter = require("../utils/.js");
 
 const prisma = new PrismaClient();
 const URL_SERVICE_PREDICT = "https://flask-predict-production.up.railway.app";
+const URL_SERVICE_PREDICT_V2 = "https://jagafakta-capstone.et.r.appspot.com";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -69,21 +74,30 @@ const predictHoaxController = {
     });
   },
   predictService: async (req, res) => {
-    const api = apiAdapter(URL_SERVICE_PREDICT);
+    const api = apiAdapter(URL_SERVICE_PREDICT_V2);
     const id = req.params.id;
     const Auth = {
       id,
     };
 
     try {
-      const response = await api.post(`${URL_SERVICE_PREDICT}/predict`, {
-        text: req.body.text,
-      });
-      console.log(response);
+      const formData = new FormData();
+      formData.append("text", req.body.text);
+
+      // Mengirim permintaan POST dengan FormData
+      const response = await api.post(
+        `${URL_SERVICE_PREDICT_V2}/predict`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       const data = {
         userId: Auth.id,
         text: req.body.text,
-        result: response.data.prediction,
+        result: response.is_hoax ? "hoax" : "fact",
       };
       const uniqId = crypto.randomUUID();
       storeData(uniqId, data);
@@ -123,24 +137,23 @@ const predictHoaxController = {
         message: "gagal",
       });
     }
+  },
 
-    // try {
-    //   const predicts = await prisma.predicts.findMany({
-    //     where: {
-    //       userId: Auth.id,
-    //     },
-    //   });
-    //   return res.json({
-    //     message: "success",
-    //     data: predicts,
-    //   });
-    // } catch (error) {
-    //   return res.status(500).json({
-    //     status: "error",
-    //     message: "Failed to create prediction",
-    //     error: error.message,
-    //   });
-    // }
+  deleteByIdPredict: async (req, res) => {
+    const id = req.params.id;
+
+    try {
+      await deleteData(id);
+      return res.json({
+        message: "Prediksi berhasil dihapus",
+      });
+    } catch (error) {
+      console.error("Error:", error); // Menambahkan log kesalahan
+      return res.status(500).json({
+        message: "error",
+        error: error.message, // Mengirim pesan kesalahan kembali ke klien
+      });
+    }
   },
 };
 

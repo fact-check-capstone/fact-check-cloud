@@ -7,5 +7,6 @@ const router = express.Router();
 // router.post("/", predictHoaxController.predict);
 router.post("/:id", predictHoaxController.predictService);
 router.get("/:id", predictHoaxController.histories);
+router.delete("/:id", predictHoaxController.deleteByIdPredict);
 
 export default router;

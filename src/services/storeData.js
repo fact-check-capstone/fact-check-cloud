@@ -24,6 +24,17 @@ const storeData = async (id, data) => {
   const predictCollection = db.collection("predictions");
   return predictCollection.doc(id).set(data);
 };
+const deleteData = async (id) => {
+  // Inisialisasi Firestore dengan kredensial
+  const db = new Firestore({
+    projectId: "jagafakta-capstone",
+    keyFilename: serviceAccountPath,
+  });
+
+  const predictCollection = db.collection("predictions");
+  return predictCollection.doc(id).delete();
+};
+
 const getDataByUserId = async (userId) => {
   // Inisialisasi Firestore dengan kredensial
   const db = new Firestore({
@@ -44,10 +55,10 @@ const getDataByUserId = async (userId) => {
   const results = [];
   querySnapshot.forEach((doc) => {
     console.log("Data dokumen:", doc.data());
-    results.push(doc.data());
+    results.push({ id: doc.id, ...doc.data() });
   });
 
   return results;
 };
 
-export { storeData, getDataByUserId };
+export { storeData, getDataByUserId, deleteData };
