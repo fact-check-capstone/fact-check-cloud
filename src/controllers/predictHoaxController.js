@@ -97,10 +97,16 @@ const predictHoaxController = {
       );
 
       // console.log(response.data)
+
+      const createdAt = new Date().toISOString();
+      const updatedAt = createdAt;
+
       const data = {
         userId: Auth.id,
         text: req.body.text,
         result: response.data.is_hoax ? "hoax" : "fact",
+        createdAt,
+        updatedAt,
       };
       const uniqId = crypto.randomUUID();
       storeData(uniqId, data);
