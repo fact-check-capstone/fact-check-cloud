@@ -24,9 +24,9 @@ const newsController = {
       });
     } catch (error) {
       return res.status(500).json({
-        status: "gagal",
+        // status: "gagal",
         message: "Berita tidak ditemukan",
-        error: error.message,
+        // error: error.message,
       });
     }
   },
