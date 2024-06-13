@@ -31,14 +31,14 @@ const predictHoaxController = {
     upload(req, res, async (err) => {
       if (err) {
         return res.status(500).json({
-          status: "error",
+          status: "Gagal",
           message: "Failed to upload image",
         });
       }
 
       if (!req.file) {
         return res.status(400).json({
-          status: "error",
+          status: "Gagal",
           message: "No image uploaded",
         });
       }
@@ -66,7 +66,7 @@ const predictHoaxController = {
         });
       } catch (error) {
         return res.status(500).json({
-          status: "error",
+          status: "Gagal",
           message: "Failed to create prediction",
           error: error.message,
         });
@@ -81,23 +81,26 @@ const predictHoaxController = {
     };
 
     try {
-      const formData = new FormData();
-      formData.append("text", req.body.text);
+      const { text } = req.body;
+      if (!text) {
+        return res.status(400).json({
+          message: "Tolong masukkan teks",
+        });
+      }
 
-      // Mengirim permintaan POST dengan FormData
+      // const formData = new FormData();
+      // formData.append("text", req.body.text);
+
       const response = await api.post(
         `${URL_SERVICE_PREDICT_V2}/predict`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        new URLSearchParams({ text })
       );
+
+      // console.log(response.data)
       const data = {
         userId: Auth.id,
         text: req.body.text,
-        result: response.is_hoax ? "hoax" : "fact",
+        result: response.data.is_hoax ? "hoax" : "fact",
       };
       const uniqId = crypto.randomUUID();
       storeData(uniqId, data);
@@ -106,8 +109,9 @@ const predictHoaxController = {
         data,
       });
     } catch (error) {
+      console.log(error)
       return res.status(500).json({
-        message: "error",
+        message: "Gagal",
       });
     }
   },
@@ -134,7 +138,7 @@ const predictHoaxController = {
     } catch (error) {
       console.error("Error getting data:", error);
       return res.status(500).json({
-        message: "gagal",
+        message: "Gagal",
       });
     }
   },
@@ -148,10 +152,10 @@ const predictHoaxController = {
         message: "Prediksi berhasil dihapus",
       });
     } catch (error) {
-      console.error("Error:", error); // Menambahkan log kesalahan
+      // console.error("Error:", error); // Menambahkan log kesalahan
       return res.status(500).json({
-        message: "error",
-        error: error.message, // Mengirim pesan kesalahan kembali ke klien
+        message: "Gagal",
+        // error: error.message,
       });
     }
   },
