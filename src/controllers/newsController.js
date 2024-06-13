@@ -23,6 +23,7 @@ const newsController = {
         data: newsList,
       });
     } catch (error) {
+      console.log(error)
       return res.status(500).json({
         // status: "gagal",
         message: "Berita tidak ditemukan",

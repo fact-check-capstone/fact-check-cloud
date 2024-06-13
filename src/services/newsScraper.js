@@ -22,21 +22,26 @@ const getNews = async () => {
   const NEWS_SITE = "https://turnbackhoax.id/feed";
 
   const { data: fetchFeed } = await axios.get(
-    "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURI(NEWS_SITE));
+    "https://www.toptal.com/developers/feed2json/convert?url=" + encodeURI(NEWS_SITE));
 
   const { items } = fetchFeed
   const result = items.map(async (item, i) => {
-    const thumbnail = await getThumbnail(item.link);
-    const content = item.description
+    const thumbnail = await getThumbnail(item.url);
+    const content = item.summary
       .replace(/<[^>]*>/g, "")
       .replace(/\[\.\.\.]/g, "...");
+
+    const createdAt = item.date_published;
+    const updatedAt = createdAt;
 
     return {
       id: (i + 1),
       title: item.title,
       image_url: thumbnail,
       content,
-      link: item.link
+      link: item.url,
+      createdAt,
+      updatedAt,
     }
   })
 
