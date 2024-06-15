@@ -104,7 +104,7 @@ const predictHoaxController = {
       const data = {
         userId: Auth.id,
         text: req.body.text,
-        result: response.data.is_hoax ? "hoax" : "fact",
+        result: !!response.data.is_hoax ? "Terindikasi hoax" : "Tidak terindikasi hoax",
         createdAt,
         updatedAt,
       };

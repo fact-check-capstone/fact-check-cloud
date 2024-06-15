@@ -1,21 +1,35 @@
-import { writeFile } from "fs/promises";
+//import { writeFile } from "fs/promises";
 import getNews from "../services/newsScraper.js";
-import news from "../dummy/news.json" assert { type: "json" };
+//import news from "../dummy/news.json" assert { type: "json" };
+
+import { Storage } from "@google-cloud/storage";
+const storage = new Storage();
+
+// Your bucket name
+const bucketName = 'jagafakta';
+const fileName = 'news.json';
+
 
 const newsController = {
   news: async (req, res) => {
     // const Auth = req.userData;
 
+    const file = storage.bucket(bucketName).file(fileName);
+    const news = await file.download();
+
     let newsList = news;
     try {
       if (req.query.refresh == "ok") {
-        newsList = await getNews();
+        try {
+          newsList = await getNews();
 
-        await writeFile(
-          "src/dummy/news.json",
-          JSON.stringify(newsList),
-          "utf8"
-        );
+          const file = storage.bucket(bucketName).file(fileName);
+          await file.save(JSON.stringify(newsList));
+        } catch (error) {
+          return res.status(500).json({
+            message: "Gagal mendapatkan berita",
+          });
+        }
       }
 
       return res.json({
