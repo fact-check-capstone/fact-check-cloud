@@ -24,7 +24,7 @@ Response Body
     "data": {
         "userId": "1",
         "text": "Presiden mengumumkan program vaksinasi massal mulai minggu depan",
-        "result": "fact",
+        "result": "Tidak terindikasi hoax",
         "createdAt": "2024-06-13T15:33:18.060Z",
         "updatedAt": "2024-06-13T15:33:18.060Z"
     }
